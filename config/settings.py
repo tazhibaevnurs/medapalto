@@ -36,7 +36,7 @@ _csrf_origins = os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS", "")
 
 def _parse_csrf_origins(raw: str) -> list[str]:
     """Django требует полные origin с http(s)://; добавляем схему и порт при необходимости."""
-    app_port = os.environ.get("APP_PORT", "8000")
+    app_port = os.environ.get("APP_PORT", "80")
     origins = []
     for item in raw.split(","):
         item = item.strip()
@@ -46,7 +46,7 @@ def _parse_csrf_origins(raw: str) -> list[str]:
             item = f"http://{item}"
         parsed = urlparse(item)
         if parsed.port is None and parsed.hostname:
-            if parsed.scheme == "http":
+            if parsed.scheme == "http" and app_port not in ("", "80"):
                 netloc = f"{parsed.hostname}:{app_port}"
             else:
                 netloc = parsed.hostname

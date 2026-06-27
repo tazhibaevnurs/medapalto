@@ -146,7 +146,7 @@ ADMIN_REGISTRATION_CODE=ваш-секретный-код
 DJANGO_DEBUG=0
 DJANGO_ALLOWED_HOSTS=YOUR_SERVER_IP,example.com
 DJANGO_CSRF_TRUSTED_ORIGINS=https://example.com
-APP_PORT=8000
+APP_PORT=80
 ```
 
 Сгенерировать секретный ключ:
@@ -164,12 +164,12 @@ docker compose ps
 docker compose logs -f web
 ```
 
-Приложение будет доступно по адресу `http://YOUR_SERVER_IP:8000/`.
+Приложение будет доступно по адресу `http://YOUR_SERVER_IP/` (порт 80).
 
 Откройте порт в файрволе, если нужно:
 
 ```bash
-sudo ufw allow 8000/tcp
+sudo ufw allow 80/tcp
 sudo ufw enable
 ```
 
