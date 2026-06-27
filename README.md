@@ -93,6 +93,117 @@ python manage.py createsuperuser
 python manage.py test
 ```
 
+## Деплой на сервер через Docker
+
+Проект упакован в Docker-контейнер (Gunicorn + WhiteNoise). База SQLite
+хранится в Docker-volume `app_data`, данные не теряются при перезапуске.
+
+### 1. Подготовка сервера (Ubuntu/Debian)
+
+```bash
+# Установка Docker
+curl -fsSL https://get.docker.com | sh
+sudo usermod -aG docker $USER
+# Перелогиньтесь в SSH, чтобы группа docker применилась
+
+# Проверка
+docker --version
+docker compose version
+```
+
+### 2. Загрузка проекта на сервер
+
+**Вариант A — через Git:**
+
+```bash
+ssh user@YOUR_SERVER_IP
+sudo mkdir -p /opt/realizatsiya && sudo chown $USER:$USER /opt/realizatsiya
+cd /opt/realizatsiya
+git clone https://github.com/<ваш-username>/realizatsiya_django.git .
+```
+
+**Вариант B — копирование с локального ПК (Windows PowerShell):**
+
+```powershell
+scp -r "C:\Users\User\Desktop\realizatsiya_django\*" user@YOUR_SERVER_IP:/opt/realizatsiya/
+```
+
+На сервере должны оказаться: `Dockerfile`, `docker-compose.yml`, `docker/`, `config/`, `consignment/`, `static/`, `manage.py`, `requirements.txt`.
+
+### 3. Настройка окружения на сервере
+
+```bash
+cd /opt/realizatsiya
+cp .env.example .env
+nano .env
+```
+
+Пример `.env` для production:
+
+```env
+DJANGO_SECRET_KEY=сгенерируйте-длинную-случайную-строку
+ADMIN_REGISTRATION_CODE=ваш-секретный-код
+DJANGO_DEBUG=0
+DJANGO_ALLOWED_HOSTS=YOUR_SERVER_IP,example.com
+DJANGO_CSRF_TRUSTED_ORIGINS=https://example.com
+APP_PORT=8000
+```
+
+Сгенерировать секретный ключ:
+
+```bash
+python3 -c "import secrets; print(secrets.token_urlsafe(50))"
+```
+
+### 4. Запуск
+
+```bash
+cd /opt/realizatsiya
+docker compose up -d --build
+docker compose ps
+docker compose logs -f web
+```
+
+Приложение будет доступно по адресу `http://YOUR_SERVER_IP:8000/`.
+
+Откройте порт в файрволе, если нужно:
+
+```bash
+sudo ufw allow 8000/tcp
+sudo ufw enable
+```
+
+### 5. Обновление после изменений в коде
+
+```bash
+cd /opt/realizatsiya
+git pull                    # если деплой через Git
+docker compose up -d --build
+```
+
+### 6. Полезные команды
+
+```bash
+# Остановить
+docker compose down
+
+# Перезапустить
+docker compose restart web
+
+# Создать суперпользователя для /admin/
+docker compose exec web python manage.py createsuperuser
+
+# Бэкап базы SQLite
+docker compose exec web cat /data/db.sqlite3 > backup-$(date +%F).sqlite3
+```
+
+### HTTPS (рекомендуется)
+
+Поставьте перед контейнером reverse-proxy (Caddy или Nginx) с SSL-сертификатом.
+В `.env` укажите `DJANGO_CSRF_TRUSTED_ORIGINS=https://ваш-домен` и добавьте
+домен в `DJANGO_ALLOWED_HOSTS`. Прокси должен передавать заголовок
+`X-Forwarded-Proto: https`.
+
 ## Что стоит сделать перед реальным боевым запуском (не локально)
 
 Это не относится к запуску «у себя на компьютере для проверки», но
@@ -102,14 +213,17 @@ python manage.py test
 - Скопировать `.env.example` в `.env` и задать свои `DJANGO_SECRET_KEY` и
   `ADMIN_REGISTRATION_CODE`.
 - Поставить `DJANGO_DEBUG=0` и указать `DJANGO_ALLOWED_HOSTS`.
-- Перейти с SQLite на PostgreSQL.
-- Настроить HTTPS и нормальный production-сервер (gunicorn/uwsgi + nginx),
-  а не встроенный `runserver`.
+- Настроить HTTPS через reverse-proxy (Caddy/Nginx).
+- При большой нагрузке рассмотреть переход с SQLite на PostgreSQL.
 
 ## Структура проекта
 
 ```
 realizatsiya_django/
+├── Dockerfile
+├── docker-compose.yml
+├── docker/
+│   └── entrypoint.sh        # migrate + collectstatic + gunicorn
 ├── manage.py
 ├── requirements.txt
 ├── config/                  # настройки и маршруты проекта
