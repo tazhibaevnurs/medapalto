@@ -6,6 +6,8 @@
 import os
 from pathlib import Path
 
+from urllib.parse import urlparse, urlunparse
+
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -30,7 +32,30 @@ ALLOWED_HOSTS = (
 )
 
 _csrf_origins = os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS", "")
-CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in _csrf_origins.split(",") if origin.strip()]
+
+
+def _parse_csrf_origins(raw: str) -> list[str]:
+    """Django требует полные origin с http(s)://; добавляем схему и порт при необходимости."""
+    app_port = os.environ.get("APP_PORT", "8000")
+    origins = []
+    for item in raw.split(","):
+        item = item.strip()
+        if not item:
+            continue
+        if "://" not in item:
+            item = f"http://{item}"
+        parsed = urlparse(item)
+        if parsed.port is None and parsed.hostname:
+            if parsed.scheme == "http":
+                netloc = f"{parsed.hostname}:{app_port}"
+            else:
+                netloc = parsed.hostname
+            item = urlunparse((parsed.scheme, netloc, "", "", "", ""))
+        origins.append(item)
+    return origins
+
+
+CSRF_TRUSTED_ORIGINS = _parse_csrf_origins(_csrf_origins)
 
 # Код, который нужно ввести при регистрации, чтобы получить роль "Администратор".
 # Поменяйте на свой и сообщите только доверенным людям.
