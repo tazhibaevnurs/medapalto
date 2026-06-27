@@ -1,0 +1,39 @@
+{% extends "consignment/base.html" %}
+{% load consignment_extras %}
+{% block title %}Мои товары{% endblock %}
+{% block content %}
+
+<div class="stat-strip">
+  <div class="stat-cell"><div class="stat-label">Сейчас на руках</div><div class="stat-value">{{ remaining }} шт</div></div>
+  <div class="stat-cell"><div class="stat-label">Продано всего</div><div class="stat-value">{{ sold_qty }} шт</div></div>
+  <div class="stat-cell"><div class="stat-label">Возвращено</div><div class="stat-value">{{ returned_qty }} шт</div></div>
+  <div class="stat-cell"><div class="stat-label">Должен компании</div><div class="stat-value" style="color:{% if debt > 0 %}var(--red){% else %}var(--green){% endif %}">{{ debt|som }} сом</div></div>
+</div>
+
+<div class="section-title">Мои товары (только просмотр)</div>
+<div class="tag-grid">
+  {% for iss in issuances %}
+    {% with status=iss.status %}
+    <div class="tag-card">
+      <div class="hole"></div>
+      <div class="tag-edge {{ status.1 }}"></div>
+      <div class="tag-body">
+        <div class="tag-head">
+          <div class="tag-title">{{ iss.product_name }}</div>
+          <span class="stamp {{ status.1 }}">{{ status.0 }}</span>
+        </div>
+        <div class="tag-stats">
+          <div><span class="lbl">выдано</span>{{ iss.issued_qty }}</div>
+          <div><span class="lbl">продано</span>{{ iss.sold_qty }}</div>
+          <div><span class="lbl">возврат</span>{{ iss.returned_qty }}</div>
+          <div><span class="lbl">остаток</span>{{ iss.remaining_qty }}</div>
+        </div>
+        <div class="tag-money-row"><span>Должен компании:</span><span class="amt" style="color:{% if iss.seller_amount_due > 0 %}var(--red){% else %}var(--green){% endif %}">{{ iss.seller_amount_due|som }} сом</span></div>
+      </div>
+    </div>
+    {% endwith %}
+  {% empty %}
+    <div class="empty" style="grid-column:1/-1;">Вам пока не выдавали товары</div>
+  {% endfor %}
+</div>
+{% endblock %}

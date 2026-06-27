@@ -1,0 +1,49 @@
+{% load static %}
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Реализация{% endblock %} · Журнал учёта</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+  <div class="wrap">
+    {% if user.is_authenticated %}
+      <div class="topbar">
+        <div>
+          <div class="eyebrow">Журнал учёта · комиссия</div>
+          <div class="title f-display">Реализация товаров</div>
+        </div>
+        <div class="who">
+          <div>
+            <div class="name">{{ user.display_name }}</div>
+            <div class="role">{% if user.is_admin_role %}администратор{% else %}продажник{% endif %}</div>
+          </div>
+          <a href="{% url 'logout' %}" class="iconbtn" title="Выйти" aria-label="Выйти">⎋</a>
+        </div>
+      </div>
+
+      {% if user.is_admin_role %}
+      <div class="tabs">
+        <a href="{% url 'dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">Сводка</a>
+        <a href="{% url 'products' %}" class="{% if request.resolver_match.url_name == 'products' %}active{% endif %}">Товары</a>
+        <a href="{% url 'issuances' %}" class="{% if request.resolver_match.url_name == 'issuances' %}active{% endif %}">Выдачи</a>
+        <a href="{% url 'sellers' %}" class="{% if request.resolver_match.url_name == 'sellers' %}active{% endif %}">Продажники</a>
+        <a href="{% url 'logs' %}" class="{% if request.resolver_match.url_name == 'logs' %}active{% endif %}">Журнал</a>
+      </div>
+      {% endif %}
+    {% endif %}
+
+    {% if messages %}
+      <div class="messages">
+        {% for message in messages %}
+          <div class="msg {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+  </div>
+</body>
+</html>

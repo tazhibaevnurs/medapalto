@@ -1,0 +1,66 @@
+{% extends "consignment/base.html" %}
+{% load consignment_extras %}
+{% block title %}Сводка{% endblock %}
+{% block content %}
+
+<div class="stat-strip">
+  <div class="stat-cell"><div class="stat-label">Товаров в каталоге</div><div class="stat-value">{{ products_count }}</div></div>
+  <div class="stat-cell"><div class="stat-label">Продажников</div><div class="stat-value">{{ sellers_count }}</div></div>
+  <div class="stat-cell"><div class="stat-label">На складе (сумма)</div><div class="stat-value">{{ stock_value|som }} сом</div></div>
+  <div class="stat-cell"><div class="stat-label">У продажников (остаток)</div><div class="stat-value">{{ total_remaining }} шт</div></div>
+  <div class="stat-cell"><div class="stat-label">Получено оплат</div><div class="stat-value" style="color:var(--green)">{{ total_paid|som }} сом</div></div>
+  <div class="stat-cell"><div class="stat-label">Долг продажников</div><div class="stat-value" style="color:{% if total_debt > 0 %}var(--red){% else %}var(--green){% endif %}">{{ total_debt|som }} сом</div></div>
+  <div class="stat-cell"><div class="stat-label">Заработано продажниками</div><div class="stat-value" style="color:var(--blue)">{{ total_earned|som }} сом</div></div>
+  <div class="stat-cell"><div class="stat-label">Возвратов всего</div><div class="stat-value">{{ total_returned_qty }} шт</div></div>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:24px;" class="dash-grid">
+  <div class="card">
+    <div class="section-title">Заработок продажников</div>
+    <div class="bars">
+      {% for row in per_seller %}
+        <div class="bar-row">
+          <div class="bar-label"><span>{{ row.seller.display_name }}</span><span class="f-mono" style="color:var(--blue)">{{ row.earned|som }} сом</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:{% widthratio row.earned max_earned 100 %}%"></div></div>
+        </div>
+      {% empty %}
+        <div style="color:var(--ink-soft); font-size:13px;">Пока нет данных</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="card table-wrap" style="border:none;">
+    <div class="section-title">По продажникам</div>
+    <table class="ledger">
+      <thead><tr><th>Имя</th><th class="num">Выдано</th><th class="num">Продано</th><th class="num">Остаток</th><th class="num">Долг</th></tr></thead>
+      <tbody>
+        {% for row in per_seller %}
+          <tr>
+            <td class="t-left">{{ row.seller.display_name }}</td>
+            <td class="num">{{ row.issued_qty }}</td>
+            <td class="num">{{ row.sold_qty }}</td>
+            <td class="num">{{ row.remaining }}</td>
+            <td class="num" style="color:{% if row.debt > 0 %}var(--red){% else %}var(--green){% endif %}">{{ row.debt|som }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="5" class="empty">Пока нет продажников</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="card">
+  <div class="section-title">Последние операции</div>
+  {% for l in recent_logs %}
+    <div class="log-row">
+      <span class="log-time">{{ l.created_at|date:"d.m.y H:i" }}</span>
+      <span><b>{{ l.action }}</b> — {{ l.details }}</span>
+    </div>
+  {% empty %}
+    <div style="color:var(--ink-soft); font-size:13px;">Журнал пуст</div>
+  {% endfor %}
+</div>
+
+<style>@media (max-width:760px){.dash-grid{grid-template-columns:1fr !important;}}</style>
+{% endblock %}

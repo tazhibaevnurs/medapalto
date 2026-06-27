@@ -1,0 +1,69 @@
+{% extends "consignment/base.html" %}
+{% load consignment_extras %}
+{% block title %}Товары{% endblock %}
+{% block content %}
+
+<details class="new-form">
+  <summary><span class="btn"><span>+</span> Новый товар</span></summary>
+  <div class="card">
+    <div class="hole"></div>
+    <div class="card-title">Приход на склад</div>
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="form_id" value="new_product">
+      <div class="field"><span class="lbl">{{ form.name.label }}</span>{{ form.name }}
+        {% for e in form.name.errors %}<span class="errorlist">{{ e }}</span>{% endfor %}</div>
+      <div class="field"><span class="lbl">{{ form.base_price.label }}</span>{{ form.base_price }}
+        {% for e in form.base_price.errors %}<span class="errorlist">{{ e }}</span>{% endfor %}</div>
+      <div class="field"><span class="lbl">{{ form.qty.label }}</span>{{ form.qty }}
+        {% for e in form.qty.errors %}<span class="errorlist">{{ e }}</span>{% endfor %}</div>
+      <button class="btn" type="submit">Добавить в каталог</button>
+    </form>
+  </div>
+</details>
+
+<div class="table-wrap">
+  <table class="ledger">
+    <thead>
+      <tr>
+        <th>Товар</th><th class="num">База, сом</th><th class="num">Поступило</th>
+        <th class="num">На складе</th><th class="num">У продажников</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in products %}
+        <tr>
+          <td class="t-left">{{ p.name }}</td>
+          <td class="num">{{ p.base_price|som }}</td>
+          <td class="num">{{ p.total_qty }}</td>
+          <td class="num">{{ p.stock_qty }}</td>
+          <td class="num">{{ p.with_sellers_qty }}</td>
+          <td>
+            <div style="display:flex; gap:6px; justify-content:flex-end;">
+              <details>
+                <summary class="iconbtn" style="display:inline-flex;" title="Изменить">✎</summary>
+                <div class="card" style="position:absolute; z-index:5; width:280px; margin-top:6px;">
+                  <form method="post" action="{% url 'product_edit' p.id %}">
+                    {% csrf_token %}
+                    <div class="field"><span class="lbl">Название</span><input type="text" name="name" value="{{ p.name }}"></div>
+                    <div class="field"><span class="lbl">Базовая цена, сом</span><input type="number" step="0.01" name="base_price" value="{{ p.base_price }}"></div>
+                    <div class="field"><span class="lbl">Доп. приход, шт</span><input type="number" name="add_qty" value="0">
+                      <span class="hint">сейчас на складе: {{ p.stock_qty }} шт</span></div>
+                    <button class="btn sm" type="submit">Сохранить</button>
+                  </form>
+                </div>
+              </details>
+              <form method="post" action="{% url 'product_delete' p.id %}" onsubmit="return confirm('Удалить «{{ p.name }}» из каталога?');">
+                {% csrf_token %}
+                <button class="iconbtn" type="submit" title="Удалить">✕</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="6" class="empty">Каталог пуст — добавьте первый товар</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

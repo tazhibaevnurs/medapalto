@@ -1,0 +1,16 @@
+{% extends "consignment/base.html" %}
+{% block title %}Журнал{% endblock %}
+{% block content %}
+<div class="section-title">Журнал всех операций</div>
+<div class="card" style="padding:0;">
+  {% for l in logs %}
+    <div class="log-row">
+      <span class="log-time">{{ l.created_at|date:"d.m.y H:i" }}</span>
+      <span class="log-actor">{{ l.actor_name }} · {% if l.role == 'admin' %}админ{% elif l.role == 'seller' %}продажник{% else %}—{% endif %}</span>
+      <span><b>{{ l.action }}</b> — {{ l.details }}</span>
+    </div>
+  {% empty %}
+    <div class="empty">Журнал пуст</div>
+  {% endfor %}
+</div>
+{% endblock %}

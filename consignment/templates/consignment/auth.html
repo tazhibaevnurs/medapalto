@@ -1,0 +1,76 @@
+{% extends "consignment/base.html" %}
+{% block title %}Вход{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-head">
+    <div class="eyebrow">Журнал учёта · комиссия</div>
+    <div class="title f-display" style="font-size:24px;">Реализация</div>
+  </div>
+
+  <div class="card" style="padding:0;">
+    <div class="hole"></div>
+    <div class="auth-tabs perf">
+      <a href="{% url 'login' %}" class="{% if mode == 'login' %}active{% endif %}">Вход</a>
+      <a href="{% url 'register' %}" class="{% if mode == 'register' %}active{% endif %}">Регистрация</a>
+    </div>
+    <div style="padding:20px;">
+      <form method="post">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+          <ul class="errorlist">{% for e in form.non_field_errors %}<li>{{ e }}</li>{% endfor %}</ul>
+        {% endif %}
+
+        {% if mode == 'register' %}
+          <div class="field">
+            <span class="lbl">{{ form.first_name.label }}</span>
+            {{ form.first_name }}
+            {% for e in form.first_name.errors %}<span class="errorlist">{{ e }}</span>{% endfor %}
+          </div>
+        {% endif %}
+
+        <div class="field">
+          <span class="lbl">Логин</span>
+          {{ form.username }}
+          {% for e in form.username.errors %}<span class="errorlist">{{ e }}</span>{% endfor %}
+        </div>
+
+        {% if mode == 'register' %}
+          <div class="field">
+            <span class="lbl">Пароль</span>
+            {{ form.password1 }}
+            {% for e in form.password1.errors %}<span class="errorlist">{{ e }}</span>{% endfor %}
+          </div>
+          <div class="field">
+            <span class="lbl">Повторите пароль</span>
+            {{ form.password2 }}
+            {% for e in form.password2.errors %}<span class="errorlist">{{ e }}</span>{% endfor %}
+          </div>
+          <div class="field">
+            <span class="lbl">Роль</span>
+            <div class="radio-row">
+              {% for radio in form.role %}
+                <label>{{ radio.tag }} {{ radio.choice_label }}</label>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="field">
+            <span class="lbl">Код администратора</span>
+            {{ form.admin_code }}
+            <span class="hint">нужен только если выбрана роль «Администратор»</span>
+            {% for e in form.admin_code.errors %}<span class="errorlist">{{ e }}</span>{% endfor %}
+          </div>
+          <button class="btn" type="submit" style="width:100%; justify-content:center;">Зарегистрироваться</button>
+        {% else %}
+          <div class="field">
+            <span class="lbl">Пароль</span>
+            {{ form.password }}
+            {% for e in form.password.errors %}<span class="errorlist">{{ e }}</span>{% endfor %}
+          </div>
+          <button class="btn" type="submit" style="width:100%; justify-content:center;">Войти</button>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+  <div class="auth-foot">данные общие для всех, кто использует эту базу</div>
+</div>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "consignment/base.html" %}
+{% load consignment_extras %}
+{% block title %}Продажники{% endblock %}
+{% block content %}
+
+<div class="section-title">Продажники ({{ rows|length }})</div>
+<div class="table-wrap" style="margin-bottom:24px;">
+  <table class="ledger">
+    <thead><tr><th>Имя</th><th>Логин</th><th class="num">Продано, шт</th><th class="num">Долг, сом</th><th class="num">Заработал, сом</th></tr></thead>
+    <tbody>
+      {% for row in rows %}
+        <tr>
+          <td class="t-left">{{ row.seller.display_name }}</td>
+          <td>{{ row.seller.username }}</td>
+          <td class="num">{{ row.sold_qty }}</td>
+          <td class="num" style="color:{% if row.debt > 0 %}var(--red){% else %}var(--green){% endif %}">{{ row.debt|som }}</td>
+          <td class="num" style="color:var(--blue)">{{ row.earned|som }}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="5" class="empty">Пока нет зарегистрированных продажников</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="section-title">Администраторы ({{ admins|length }})</div>
+<div>
+  {% for a in admins %}<span class="pill">{{ a.display_name }}</span>{% endfor %}
+</div>
+{% endblock %}
