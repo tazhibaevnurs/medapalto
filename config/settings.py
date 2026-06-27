@@ -48,6 +48,8 @@ def _parse_csrf_origins(raw: str) -> list[str]:
         if parsed.port is None and parsed.hostname:
             if parsed.scheme == "http" and app_port not in ("", "80"):
                 netloc = f"{parsed.hostname}:{app_port}"
+            elif parsed.scheme == "https" and app_port not in ("", "443"):
+                netloc = f"{parsed.hostname}:{app_port}"
             else:
                 netloc = parsed.hostname
             item = urlunparse((parsed.scheme, netloc, "", "", "", ""))

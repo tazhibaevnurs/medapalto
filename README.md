@@ -138,15 +138,16 @@ cp .env.example .env
 nano .env
 ```
 
-Пример `.env` для production:
+Пример `.env` для production (домен medpalto.us.kg):
 
 ```env
 DJANGO_SECRET_KEY=сгенерируйте-длинную-случайную-строку
 ADMIN_REGISTRATION_CODE=ваш-секретный-код
 DJANGO_DEBUG=0
-DJANGO_ALLOWED_HOSTS=YOUR_SERVER_IP,example.com
-DJANGO_CSRF_TRUSTED_ORIGINS=https://example.com
-APP_PORT=80
+DOMAIN=medpalto.us.kg
+ACME_EMAIL=ваш-email@example.com
+DJANGO_ALLOWED_HOSTS=medpalto.us.kg,www.medpalto.us.kg,45.12.19.168
+DJANGO_CSRF_TRUSTED_ORIGINS=https://medpalto.us.kg,https://www.medpalto.us.kg
 ```
 
 Сгенерировать секретный ключ:
@@ -164,14 +165,28 @@ docker compose ps
 docker compose logs -f web
 ```
 
-Приложение будет доступно по адресу `http://YOUR_SERVER_IP/` (порт 80).
+Приложение будет доступно по адресу **https://medpalto.us.kg/** (HTTPS через Caddy).
 
-Откройте порт в файрволе, если нужно:
+Откройте порты в файрволе:
 
 ```bash
 sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
 sudo ufw enable
 ```
+
+### Домен medpalto.us.kg (DigitalPlat)
+
+1. Зарегистрируйтесь: https://dash.domain.digitalplat.org/auth/register
+2. Зарегистрируйте домен `medpalto` в зоне `.us.kg`
+3. В DNS-панели DigitalPlat добавьте A-запись:
+   - **Имя:** `@` (или пусто)
+   - **Тип:** A
+   - **Значение:** IP вашего сервера (`45.12.19.168`)
+4. Опционально — запись для `www` → тот же IP
+5. Подождите 5–30 минут, затем на сервере: `git pull && docker compose up -d --build`
+
+Caddy автоматически получит SSL-сертификат от Let's Encrypt.
 
 ### 5. Обновление после изменений в коде
 
