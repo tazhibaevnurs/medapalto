@@ -25,8 +25,8 @@ services:
       - "80:80"
       - "443:443"
     environment:
-      DOMAIN: ${DOMAIN:-medpalto.us.kg}
-      ACME_EMAIL: ${ACME_EMAIL:-admin@medpalto.us.kg}
+      DOMAIN: ${DOMAIN:-medpalto.qzz.io}
+      ACME_EMAIL: ${ACME_EMAIL:-admin@medpalto.qzz.io}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data

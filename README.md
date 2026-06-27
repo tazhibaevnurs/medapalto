@@ -138,16 +138,16 @@ cp .env.example .env
 nano .env
 ```
 
-Пример `.env` для production (домен medpalto.us.kg):
+Пример `.env` для production (домен medpalto.qzz.io):
 
 ```env
 DJANGO_SECRET_KEY=сгенерируйте-длинную-случайную-строку
 ADMIN_REGISTRATION_CODE=ваш-секретный-код
 DJANGO_DEBUG=0
-DOMAIN=medpalto.us.kg
+DOMAIN=medpalto.qzz.io
 ACME_EMAIL=ваш-email@example.com
-DJANGO_ALLOWED_HOSTS=medpalto.us.kg,www.medpalto.us.kg,45.12.19.168
-DJANGO_CSRF_TRUSTED_ORIGINS=https://medpalto.us.kg,https://www.medpalto.us.kg
+DJANGO_ALLOWED_HOSTS=medpalto.qzz.io,www.medpalto.qzz.io,45.12.19.168
+DJANGO_CSRF_TRUSTED_ORIGINS=https://medpalto.qzz.io,https://www.medpalto.qzz.io
 ```
 
 Сгенерировать секретный ключ:
@@ -165,7 +165,7 @@ docker compose ps
 docker compose logs -f web
 ```
 
-Приложение будет доступно по адресу **https://medpalto.us.kg/** (HTTPS через Caddy).
+Приложение будет доступно по адресу **https://medpalto.qzz.io/** (HTTPS через Caddy).
 
 Откройте порты в файрволе:
 
@@ -175,7 +175,7 @@ sudo ufw allow 443/tcp
 sudo ufw enable
 ```
 
-### Домен medpalto.us.kg (DigitalPlat)
+### Домен medpalto.qzz.io (DigitalPlat)
 
 1. Зарегистрируйтесь: https://dash.domain.digitalplat.org/auth/register
 2. Зарегистрируйте домен `medpalto` в зоне `.us.kg`
